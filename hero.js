@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-23 20:29:14
+// Transcrypt'ed from Python, 2020-08-23 20:33:19
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -1191,8 +1191,11 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-23 20:29:15
+// Transcrypt'ed from Python, 2020-08-23 20:33:20
 var move = function (game, h) {
+	if (game.activeHero.health <= 75) {
+		return h.health_well ();
+	}
 	return h.weaker_enemy (game) || h.enemy (game);
 };
 module.exports = move;
