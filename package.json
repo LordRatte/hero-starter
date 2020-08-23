@@ -24,6 +24,7 @@
     "mocha": "^1.21.4"
   },
   "dependencies": {
-    "ai-battle-engine": "git+https://github.com/JSJitsu/ai-battle-engine.git"
+    "ai-battle-engine": "git+https://github.com/JSJitsu/ai-battle-engine.git",
+    "rollup": "^2.26.5"
   }
 }

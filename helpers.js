@@ -246,4 +246,15 @@ helpers.findNearestTeamMember = function (gameData) {
     return pathInfoObject.direction;
 };
 
+helpers.valid_coordinates = helpers.validCoordinates;
+helpers.get_tile_nearby = helpers.getTileNearby;
+helpers.object_direction_and_distance = helpers.findNearestObjectDirectionAndDistance;
+helpers.non_team_diamond_mine = helpers.findNearestNonTeamDiamondMine;
+helpers.unowned_diamond_mine = helpers.findNearestUnownedDiamondMine;
+helpers.health_well = helpers.findNearestHealthWell;
+helpers.weaker_enemy = helpers.findNearestWeakerEnemy;
+helpers.enemy = helpers.findNearestEnemy;
+helpers.team_member = helpers.findNearestTeamMember;
+
+
 module.exports = helpers;
