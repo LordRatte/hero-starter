@@ -52,7 +52,8 @@ var enemyMoveFunction = function (gameData, helpers) {
     // var choices = ['North', 'South', 'East', 'West'];
 
     // return choices[Math.floor(Math.random()*4)];
-    return helpers.findNearestHealthWell (gameData);
+	helpers.game_data = gameData;
+    return helpers.health_well();
 };
 
 var currentTurn = 0;

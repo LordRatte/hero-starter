@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-23 20:45:10
+// Transcrypt'ed from Python, 2020-08-28 11:44:33
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -1191,8 +1191,20 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-23 20:45:11
+// Transcrypt'ed from Python, 2020-08-28 11:44:33
+var __name__$1 = '__main__';
+var dumps = function (o) {
+	return JSON.stringify (o, null, 2);
+};
+var DangerGrid =  __class__ ('DangerGrid', [object], {
+	__module__: __name__$1,
+	get __init__ () {return __get__ (this, function (self, board, x, y, my_team) {
+		self.team = my_team;
+	});}
+});
 var move = function (game, h) {
+	h.game_data = game;
+	var danger_grid = DangerGrid (game.board, game.activeHero.distanceLeft, game.activeHero.distanceLeft, game.activeHero.team);
 	if (game.activeHero.health <= 75) {
 		return h.health_well (game);
 	}
@@ -1200,4 +1212,6 @@ var move = function (game, h) {
 };
 module.exports = move;
 
+exports.DangerGrid = DangerGrid;
+exports.dumps = dumps;
 exports.move = move;
