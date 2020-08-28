@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-28 11:44:35
+// Transcrypt'ed from Python, 2020-08-28 19:01:11
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -1261,7 +1261,7 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-28 11:44:35
+// Transcrypt'ed from Python, 2020-08-28 19:01:12
 var __name__$1 = '__main__';
 var Helpers =  __class__ ('Helpers', [object], {
 	__module__: __name__$1,
@@ -1310,7 +1310,7 @@ var Helpers =  __class__ ('Helpers', [object], {
 			for (var [i, direction] of enumerate (directions)) {
 				var next_tile = cls.get_tile_nearby (board, dft, dfl, direction);
 				if (next_tile) {
-					var key = (next_tile.distance_from_top + '|') + next_tile.distance_from_left;
+					var key = (next_tile.distanceFromTop + '|') + next_tile.distanceFromLeft;
 					var is_goal_tile = false;
 					try {
 						var is_goal_tile = tile_callback (next_tile);
@@ -1327,7 +1327,7 @@ var Helpers =  __class__ ('Helpers', [object], {
 					else if (is_goal_tile) {
 						var correct_direction = direction;
 						var distance = 1;
-						var final_coords = tuple ([next_tile.distance_from_top, next_tile.distance_from_left]);
+						var final_coords = tuple ([next_tile.distanceFromTop, next_tile.distanceFromLeft]);
 						while (!(coords [3] == 'START')) {
 							var correct_direction = coords [2];
 							distance += 1;
@@ -1340,7 +1340,7 @@ var Helpers =  __class__ ('Helpers', [object], {
 						return goal_tile;
 					}
 					else if (next_tile.py_metatype == 'Unoccupied') {
-						queue.push (tuple ([next_tile.distance_from_top, next_tile.distance_from_left, direction, coords]));
+						queue.push (tuple ([next_tile.distanceFromTop, next_tile.distanceFromLeft, direction, coords]));
 						visited [key] = true;
 					}
 				}
@@ -1387,7 +1387,6 @@ var Helpers =  __class__ ('Helpers', [object], {
 		return path_info_object.direction;
 	});},
 	get health_well () {return __getcm__ (this, function (cls) {
-		print ('@@@');
 		var hero = cls.game_data.activeHero;
 		var board = cls.game_data.board;
 		var func = function (health_well_tile) {

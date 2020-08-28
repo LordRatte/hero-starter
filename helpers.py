@@ -14,7 +14,6 @@ class Helpers:
 		# These are the X/Y coordinates
 		from_top_new = distance_from_top
 		from_left_new = distance_from_left
-		
 
 		# This associates the cardinal directions with an X or Y coordinate
 		if direction == 'North':
@@ -78,7 +77,7 @@ class Helpers:
 				if next_tile:
 
 					# Assign a key variable the next_tile's coordinates to put into our visited object later
-					key = next_tile.distance_from_top + '|' + next_tile.distance_from_left
+					key = next_tile.distanceFromTop + '|' + next_tile.distanceFromLeft
 
 					is_goal_tile = False
 					try:
@@ -99,7 +98,7 @@ class Helpers:
 						distance = 1
 
 						# These are the coordinates of our target tile_type
-						final_coords = (next_tile.distance_from_top, next_tile.distance_from_left)
+						final_coords = (next_tile.distanceFromTop, next_tile.distanceFromLeft)
 
 						# Loop back through path until we get to the start
 						while not (coords[3] == 'START'):
@@ -121,7 +120,7 @@ class Helpers:
 
 					# If the tile is unoccupied, then we need to push it into our queue
 					elif next_tile.type == 'Unoccupied':
-						queue.push((next_tile.distance_from_top, next_tile.distance_from_left, direction, coords))
+						queue.push((next_tile.distanceFromTop, next_tile.distanceFromLeft, direction, coords))
 
 						# Give the visited object another key with the value we stored earlier
 						visited[key] = True
@@ -200,7 +199,6 @@ class Helpers:
 
 		# Get the path info object
 		path_info_object = cls.object_direction_and_distance(board, hero, func)
-
 		# Return the direction that needs to be taken to achieve the goal
 		# If no weaker enemy exists, will simply return undefined, which will
 		# be interpreted as "Stay" by the game object

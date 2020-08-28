@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-28 11:44:33
+// Transcrypt'ed from Python, 2020-08-28 19:01:09
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -102,7 +102,7 @@ function __class__ (name, bases, attribs, meta) {
         meta = bases [0] .__metaclass__;
     }
     return meta.__new__ (meta, name, bases, attribs);
-}function __kwargtrans__ (anObject) {
+}function __pragma__ () {}function __kwargtrans__ (anObject) {
     anObject.__kwargtrans__ = null;
     anObject.constructor = Object;
     return anObject;
@@ -277,7 +277,12 @@ function py_typeof (anObject) {
             }
         }
     }
-}function __PyIterator__ (iterable) {
+}function max (nrOrSeq) {
+    return arguments.length == 1 ? Math.max (...nrOrSeq) : Math.max (...arguments);
+}function min (nrOrSeq) {
+    return arguments.length == 1 ? Math.min (...nrOrSeq) : Math.min (...arguments);
+}var abs = Math.abs;
+function __PyIterator__ (iterable) {
     this.iterable = iterable;
     this.index = 0;
 }
@@ -1191,27 +1196,112 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-28 11:44:33
+// Transcrypt'ed from Python, 2020-08-28 19:01:10
+var sqrt = Math.sqrt;
+
+// Transcrypt'ed from Python, 2020-08-28 19:01:10
 var __name__$1 = '__main__';
 var dumps = function (o) {
 	return JSON.stringify (o, null, 2);
 };
+var loads = function (s) {
+	return JSON.parse (s);
+};
 var DangerGrid =  __class__ ('DangerGrid', [object], {
 	__module__: __name__$1,
-	get __init__ () {return __get__ (this, function (self, board, x, y, my_team) {
-		self.team = my_team;
+	get __init__ () {return __get__ (this, function (self, board, active_hero) {
+		self.team = active_hero.team;
+		self.myid = active_hero.id;
+		var base_grid = dict ({});
+		for (var r of board.tiles) {
+			for (var o of r) {
+				if (o ['type'] == 'HealthWell') {
+					var d = -(20);
+				}
+				else if (o ['type'] == 'DiamondMine') {
+					var d = 0;
+				}
+				else if (o ['type'] == 'Hero') {
+					if (o ['team'] == self.team) {
+						if (self.myid != o ['id']) {
+							var d = -(15);
+						}
+						else {
+							var d = 0;
+						}
+					}
+					else {
+						var d = 20;
+					}
+				}
+				else {
+					var d = 0;
+				}
+				if (len (o.heroesKilled)) {
+					d += (len (o.heroesKilled) * (d / abs (d))) * 3;
+				}
+				base_grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], d);
+			}
+		}
+		var grid = dict ({});
+		for (var r of board.tiles) {
+			for (var o of r) {
+				var rel_danger = 0;
+				for (var [k, v] of base_grid.py_items ()) {
+					var __left0__ = k.py_split (',');
+					var ox = __left0__ [0];
+					var oy = __left0__ [1];
+					var distance = self.distance (ox, oy, o.distanceFromLeft, o.distanceFromTop);
+					if (distance > 0) {
+						rel_danger += float (v) / float (distance);
+					}
+					else {
+						rel_danger += float (v);
+					}
+				}
+				grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], rel_danger);
+			}
+		}
+		self.grid = grid;
+	});},
+	get distance () {return function (x1, y1, x2, y2) {
+		return sqrt (Math.pow (x1 - x2, 2) + Math.pow (y1 - y2, 2));
+	};},
+	get print () {return __get__ (this, function (self) {
+		var mmax = max (self.grid.py_values ());
+		var mmin = abs (min (self.grid.py_values ()));
+		for (var x = 0; x < 5; x++) {
+			var line = '';
+			for (var y = 0; y < 5; y++) {
+				var d = self.grid.__getitem__ ([x, y]) + mmin;
+				line += str (int ((9 * d) / (mmax + mmin)));
+			}
+			print (line);
+		}
 	});}
 });
 var move = function (game, h) {
 	h.game_data = game;
-	var danger_grid = DangerGrid (game.board, game.activeHero.distanceLeft, game.activeHero.distanceLeft, game.activeHero.team);
+	var danger_grid = DangerGrid (game.board, game.activeHero);
+	danger_grid.print ();
 	if (game.activeHero.health <= 75) {
-		return h.health_well (game);
+		print (h.health_well ());
+		return h.health_well ();
 	}
-	return h.weaker_enemy (game) || h.enemy (game);
+	return h.weaker_enemy () || h.enemy ();
 };
-module.exports = move;
+try {
+	var pragma = __pragma__;
+	var pragma = true;
+}
+catch (__except0__) {
+	var pragma = false;
+}
+if (pragma) {
+	module.exports = move;
+}
 
 exports.DangerGrid = DangerGrid;
 exports.dumps = dumps;
+exports.loads = loads;
 exports.move = move;

@@ -1,5 +1,9 @@
 #!/bin/sh
 
 sh build.sh
-node test-battle.js $@
+ERR=$?
+if [[ $ERR -eq 0 ]]; then
 
+node test-battle.js $@;
+
+fi
