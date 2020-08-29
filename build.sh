@@ -13,6 +13,8 @@ fi;
 
 python3 hero.py # To check syntax in a happy way
 check_exit
+python3 helpers.py # To check syntax in a happy way
+check_exit
 
 python -m transcrypt -p .none -bmn hero.py;
 check_exit	

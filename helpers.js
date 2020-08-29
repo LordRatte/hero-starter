@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-28 19:01:11
+// Transcrypt'ed from Python, 2020-08-29 13:34:01
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -29,19 +29,6 @@ function __get__ (self, func, quotedFuncName) {
     }
     else {
         return func;
-    }
-}function __getcm__ (self, func, quotedFuncName) {
-    if (self.hasOwnProperty ('__class__')) {
-        return function () {
-            var args = [] .slice.apply (arguments);
-            return func.apply (null, [self.__class__] .concat (args));
-        };
-    }
-    else {
-        return function () {
-            var args = [] .slice.apply (arguments);
-            return func.apply (null, [self] .concat (args));
-        };
     }
 }var py_metatype = {
     __name__: 'type',
@@ -115,7 +102,7 @@ function __class__ (name, bases, attribs, meta) {
         meta = bases [0] .__metaclass__;
     }
     return meta.__new__ (meta, name, bases, attribs);
-}function __kwargtrans__ (anObject) {
+}function __pragma__ () {}function __kwargtrans__ (anObject) {
     anObject.__kwargtrans__ = null;
     anObject.constructor = Object;
     return anObject;
@@ -125,21 +112,7 @@ function __setproperty__ (anObject, name, descriptor) {
         Object.defineProperty (anObject, name, descriptor);
     }
 }
-function __in__ (element, container) {
-    if (container === undefined || container === null) {
-        return false;
-    }
-    if (container.__contains__ instanceof Function) {
-        return container.__contains__ (element);
-    }
-    else {
-        return (
-            container.indexOf ?
-            container.indexOf (element) > -1 :
-            container.hasOwnProperty (element)
-        );
-    }
-}function __specialattrib__ (attrib) {
+function __specialattrib__ (attrib) {
     return (attrib.startswith ('__') && attrib.endswith ('__')) || attrib == 'constructor' || attrib.startswith ('py_');
 }function len (anObject) {
     if (anObject === undefined || anObject === null) {
@@ -304,7 +277,55 @@ function py_typeof (anObject) {
             }
         }
     }
-}function __PyIterator__ (iterable) {
+}function max (nrOrSeq) {
+    return arguments.length == 1 ? Math.max (...nrOrSeq) : Math.max (...arguments);
+}function min (nrOrSeq) {
+    return arguments.length == 1 ? Math.min (...nrOrSeq) : Math.min (...arguments);
+}var abs = Math.abs;
+function __jsUsePyNext__ () {
+    try {
+        var result = this.__next__ ();
+        return {value: result, done: false};
+    }
+    catch (exception) {
+        return {value: undefined, done: true};
+    }
+}
+function __pyUseJsNext__ () {
+    var result = this.next ();
+    if (result.done) {
+        throw StopIteration (new Error ());
+    }
+    else {
+        return result.value;
+    }
+}
+function py_iter (iterable) {
+    if (typeof iterable == 'string' || '__iter__' in iterable) {
+        var result = iterable.__iter__ ();
+        result.next = __jsUsePyNext__;
+    }
+    else if ('selector' in iterable) {
+        var result = list (iterable) .__iter__ ();
+        result.next = __jsUsePyNext__;
+    }
+    else if ('next' in iterable) {
+        var result = iterable;
+        if (! ('__next__' in result)) {
+            result.__next__ = __pyUseJsNext__;
+        }
+    }
+    else if (Symbol.iterator in iterable) {
+        var result = iterable [Symbol.iterator] ();
+        result.__next__ = __pyUseJsNext__;
+    }
+    else {
+        throw IterableError (new Error ());
+    }
+    result [Symbol.iterator] = function () {return result;};
+    return result;
+}
+function __PyIterator__ (iterable) {
     this.iterable = iterable;
     this.index = 0;
 }
@@ -328,30 +349,10 @@ __JsIterator__.prototype.next = function () {
         return {value: undefined, done: true};
     }
 };
-function zip () {
-    var args = [] .slice.call (arguments);
-    for (var i = 0; i < args.length; i++) {
-        if (typeof args [i] == 'string') {
-            args [i] = args [i] .split ('');
-        }
-        else if (!Array.isArray (args [i])) {
-            args [i] = Array.from (args [i]);
-        }
-    }
-    var shortest = args.length == 0 ? [] : args.reduce (
-        function (array0, array1) {
-            return array0.length < array1.length ? array0 : array1;
-        }
-    );
-    return shortest.map (
-        function (current, index) {
-            return args.map (
-                function (current) {
-                    return current [index];
-                }
-            );
-        }
-    );
+function py_reversed (iterable) {
+    iterable = iterable.slice ();
+    iterable.reverse ();
+    return iterable;
 }function range (start, stop, step) {
     if (stop == undefined) {
         stop = start;
@@ -368,10 +369,7 @@ function zip () {
         result.push(i);
     }
     return result;
-}function enumerate (iterable) {
-    return zip (range (len (iterable)), iterable);
-}
-function list (iterable) {
+}function list (iterable) {
     let instance = iterable ? Array.from (iterable) : [];
     return instance;
 }
@@ -1261,168 +1259,122 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-28 19:01:12
+// Transcrypt'ed from Python, 2020-08-29 13:34:02
+var sqrt = Math.sqrt;
+
+// Transcrypt'ed from Python, 2020-08-29 13:34:02
 var __name__$1 = '__main__';
-var Helpers =  __class__ ('Helpers', [object], {
+var dumps = function (o) {
+	return JSON.stringify (o, null, 2);
+};
+var loads = function (s) {
+	return JSON.parse (s);
+};
+var Map =  __class__ ('Map', [object], {
 	__module__: __name__$1,
-	get valid_coord () {return __getcm__ (this, function (cls, board, distance_from_top, distance_from_left) {
-		return !(distance_from_top < 0 || distance_from_left < 0 || distance_from_top > board.lengthOfSide - 1 || distance_from_left > board.lengthOfSide - 1);
-	});},
-	get get_tile_nearby () {return __getcm__ (this, function (cls, board, distance_from_top, distance_from_left, direction) {
-		var from_top_new = distance_from_top;
-		var from_left_new = distance_from_left;
-		if (direction == 'North') {
-			from_top_new -= 1;
-		}
-		else if (direction == 'East') {
-			from_left_new += 1;
-		}
-		else if (direction == 'South') {
-			from_top_new += 1;
-		}
-		else if (direction == 'West') {
-			from_left_new -= 1;
-		}
-		else {
-			return false;
-		}
-		if (cls.valid_coord (board, from_top_new, from_left_new)) {
-			return board.tiles [from_top_new] [from_left_new];
-		}
-		else {
-			return false;
-		}
-	});},
-	get object_direction_and_distance () {return __getcm__ (this, function (cls, board, from_tile, tile_callback) {
-		var queue = [];
-		var visited = dict ({});
-		var dft = from_tile.distanceFromTop;
-		var dfl = from_tile.distanceFromLeft;
-		var visit_info = tuple ([dft, dfl, 'None', 'START']);
-		visited [(dft + '|') + dfl] = true;
-		queue.append (visit_info);
-		while (len (queue)) {
-			var coords = queue.py_pop (0);
-			var __left0__ = tuple ([coords [0], coords [1]]);
-			var dft = __left0__ [0];
-			var dfl = __left0__ [1];
-			var directions = tuple (['North', 'East', 'South', 'West']);
-			for (var [i, direction] of enumerate (directions)) {
-				var next_tile = cls.get_tile_nearby (board, dft, dfl, direction);
-				if (next_tile) {
-					var key = (next_tile.distanceFromTop + '|') + next_tile.distanceFromLeft;
-					var is_goal_tile = false;
-					try {
-						var is_goal_tile = tile_callback (next_tile);
-					}
-					catch (__except0__) {
-						if (isinstance (__except0__, Exception)) {
-							var is_goal_tile = false;
+	get __init__ () {return __get__ (this, function (self, board, active_hero) {
+		self.team = active_hero.team;
+		self.myid = active_hero.id;
+		var base_grid = dict ({});
+		for (var r of board.tiles) {
+			for (var o of r) {
+				if (o ['type'] == 'HealthWell') {
+					var d = -(20);
+				}
+				else if (o ['type'] == 'DiamondMine') {
+					var d = 0;
+				}
+				else if (o ['type'] == 'Hero') {
+					if (o ['team'] == self.team) {
+						if (self.myid != o ['id']) {
+							var d = -(15);
 						}
 						else {
-							throw __except0__;
+							var d = 0;
 						}
 					}
-					if (__in__ (key, visited)) ;
-					else if (is_goal_tile) {
-						var correct_direction = direction;
-						var distance = 1;
-						var final_coords = tuple ([next_tile.distanceFromTop, next_tile.distanceFromLeft]);
-						while (!(coords [3] == 'START')) {
-							var correct_direction = coords [2];
-							distance += 1;
-							var coords = coords [3];
-						}
-						var goal_tile = next_tile;
-						goal_tile.direction = correct_direction;
-						goal_tile.distance = distance;
-						goal_tile.coords = final_coords;
-						return goal_tile;
-					}
-					else if (next_tile.py_metatype == 'Unoccupied') {
-						queue.push (tuple ([next_tile.distanceFromTop, next_tile.distanceFromLeft, direction, coords]));
-						visited [key] = true;
+					else {
+						var d = 20;
 					}
 				}
+				else {
+					var d = 0;
+				}
+				if (len (o.heroesKilled)) {
+					d += (len (o.heroesKilled) * (d / abs (d))) * 3;
+				}
+				base_grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], d);
 			}
 		}
-		return false;
+		var grid = dict ({});
+		for (var r of board.tiles) {
+			for (var o of r) {
+				var rel_danger = 0;
+				for (var [k, v] of base_grid.py_items ()) {
+					var __left0__ = k.py_split (',');
+					var ox = __left0__ [0];
+					var oy = __left0__ [1];
+					var distance = self.distance (ox, oy, o.distanceFromLeft, o.distanceFromTop);
+					if (distance > 0) {
+						rel_danger += float (v) / float (distance);
+					}
+					else {
+						rel_danger += float (v);
+					}
+				}
+				grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], o);
+				grid.__getitem__ ([o.distanceFromLeft, o.distanceFromTop]).rel_danger = rel_danger;
+			}
+		}
+		self.grid = grid;
 	});},
-	get non_team_diamond_mine () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (mine_tile) {
-			if (mine_tile.py_metatype == 'DiamondMine') {
-				if (mine_tile.owner) {
-					return mine_tile.owner.team != hero.team;
+	get distance () {return function (x1, y1, x2, y2) {
+		return sqrt (Math.pow (x1 - x2, 2) + Math.pow (y1 - y2, 2));
+	};},
+	get print () {return __get__ (this, function (self) {
+		var mmax = max ((function () {
+			var __accu0__ = [];
+			for (var o of self.grid.py_values ()) {
+				__accu0__.append (o.rel_danger);
+			}
+			return py_iter (__accu0__);
+		}) ());
+		var mmin = abs (min ((function () {
+			var __accu0__ = [];
+			for (var o of self.grid.py_values ()) {
+				__accu0__.append (o.rel_danger);
+			}
+			return py_iter (__accu0__);
+		}) ()));
+		for (var x of py_reversed (range (5))) {
+			var line = '';
+			for (var y = 0; y < 5; y++) {
+				if (self.grid.__getitem__ ([x, y]) ['type'] == 'Unoccupied') {
+					var d = self.grid.__getitem__ ([x, y]).rel_danger + mmin;
+					line += str (int ((9 * d) / (mmax + mmin)));
 				}
 				else {
-					return true;
+					line += '#';
 				}
 			}
-			else {
-				return false;
-			}
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func, board);
-		return path_info_object.direction;
+			print (line);
+		}
 	});},
-	get unowned_diamond_mine () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (mine_tile) {
-			if (mine_tile.py_metatype == 'DiamondMine') {
-				if (mine_tile.owner) {
-					return mine_tile.owner.id != hero.id;
-				}
-				else {
-					return true;
-				}
-			}
-			else {
-				return false;
-			}
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func);
-		return path_info_object.direction;
-	});},
-	get health_well () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (health_well_tile) {
-			return health_well_tile.py_metatype == 'Health_well';
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func);
-		return path_info_object.direction;
-	});},
-	get weaker_enemy () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (enemy_tile) {
-			return enemy_tile.py_metatype == 'Hero' && enemy_tile.team != hero.team && enemy_tile.health < hero.health;
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func);
-		return path_info_object.direction;
-	});},
-	get enemy () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (enemy_tile) {
-			return enemy_tile.py_metatype == 'Hero' && enemy_tile.team != hero.team;
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func);
-		return path_info_object.direction;
-	});},
-	get team_member () {return __getcm__ (this, function (cls) {
-		var hero = cls.game_data.activeHero;
-		var board = cls.game_data.board;
-		var func = function (hero_tile) {
-			return hero_tile.py_metatype == 'Hero' && hero_tile.team == hero.team;
-		};
-		var path_info_object = cls.object_direction_and_distance (board, hero, func);
-		return path_info_object.direction;
+	get route () {return __get__ (this, function (self, source, target) {
+		// pass;
 	});}
 });
-module.exports = Helpers;
+try {
+	var pragma = __pragma__;
+	var pragma = true;
+}
+catch (__except0__) {
+	var pragma = false;
+}
+if (pragma) {
+	module.exports = Map;
+}
 
-exports.Helpers = Helpers;
+exports.Map = Map;
+exports.dumps = dumps;
+exports.loads = loads;
