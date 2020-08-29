@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-29 13:34:01
+// Transcrypt'ed from Python, 2020-08-29 21:09:51
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -112,7 +112,21 @@ function __setproperty__ (anObject, name, descriptor) {
         Object.defineProperty (anObject, name, descriptor);
     }
 }
-function __specialattrib__ (attrib) {
+function __in__ (element, container) {
+    if (container === undefined || container === null) {
+        return false;
+    }
+    if (container.__contains__ instanceof Function) {
+        return container.__contains__ (element);
+    }
+    else {
+        return (
+            container.indexOf ?
+            container.indexOf (element) > -1 :
+            container.hasOwnProperty (element)
+        );
+    }
+}function __specialattrib__ (attrib) {
     return (attrib.startswith ('__') && attrib.endswith ('__')) || attrib == 'constructor' || attrib.startswith ('py_');
 }function len (anObject) {
     if (anObject === undefined || anObject === null) {
@@ -277,54 +291,7 @@ function py_typeof (anObject) {
             }
         }
     }
-}function max (nrOrSeq) {
-    return arguments.length == 1 ? Math.max (...nrOrSeq) : Math.max (...arguments);
-}function min (nrOrSeq) {
-    return arguments.length == 1 ? Math.min (...nrOrSeq) : Math.min (...arguments);
 }var abs = Math.abs;
-function __jsUsePyNext__ () {
-    try {
-        var result = this.__next__ ();
-        return {value: result, done: false};
-    }
-    catch (exception) {
-        return {value: undefined, done: true};
-    }
-}
-function __pyUseJsNext__ () {
-    var result = this.next ();
-    if (result.done) {
-        throw StopIteration (new Error ());
-    }
-    else {
-        return result.value;
-    }
-}
-function py_iter (iterable) {
-    if (typeof iterable == 'string' || '__iter__' in iterable) {
-        var result = iterable.__iter__ ();
-        result.next = __jsUsePyNext__;
-    }
-    else if ('selector' in iterable) {
-        var result = list (iterable) .__iter__ ();
-        result.next = __jsUsePyNext__;
-    }
-    else if ('next' in iterable) {
-        var result = iterable;
-        if (! ('__next__' in result)) {
-            result.__next__ = __pyUseJsNext__;
-        }
-    }
-    else if (Symbol.iterator in iterable) {
-        var result = iterable [Symbol.iterator] ();
-        result.__next__ = __pyUseJsNext__;
-    }
-    else {
-        throw IterableError (new Error ());
-    }
-    result [Symbol.iterator] = function () {return result;};
-    return result;
-}
 function __PyIterator__ (iterable) {
     this.iterable = iterable;
     this.index = 0;
@@ -369,7 +336,15 @@ function py_reversed (iterable) {
         result.push(i);
     }
     return result;
-}function list (iterable) {
+}function any (iterable) {
+    for (let item of iterable) {
+        if (bool (item)) {
+            return true;
+        }
+    }
+    return false;
+}
+function list (iterable) {
     let instance = iterable ? Array.from (iterable) : [];
     return instance;
 }
@@ -1259,11 +1234,38 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-29 13:34:02
+// Transcrypt'ed from Python, 2020-08-29 21:09:52
+var __name__$1 = 'misc';
+var Node =  __class__ ('Node', [object], {
+	__module__: __name__$1,
+	get __init__ () {return __get__ (this, function (self, parent, position) {
+		if (typeof parent == 'undefined' || (parent != null && parent.hasOwnProperty ("__kwargtrans__"))) {			var parent = null;
+		}		if (typeof position == 'undefined' || (position != null && position.hasOwnProperty ("__kwargtrans__"))) {			var position = null;
+		}		self.parent = parent;
+		self.position = position;
+		self.g = 0;
+		self.h = 0;
+		self.f = 0;
+	});},
+	get __eq__ () {return __get__ (this, function (self, other) {
+		return self.position [0] == other.position [0] && self.position [1] == other.position [1];
+	});},
+	get __repr__ () {return __get__ (this, function (self) {
+		return '({0},f{1}g{2})'.format (self.position, self.f, self.g);
+	});},
+	get __lt__ () {return __get__ (this, function (self, other) {
+		return self.f < other.f;
+	});},
+	get __gt__ () {return __get__ (this, function (self, other) {
+		return self.f > other.f;
+	});}
+});
+
+// Transcrypt'ed from Python, 2020-08-29 21:09:52
 var sqrt = Math.sqrt;
 
-// Transcrypt'ed from Python, 2020-08-29 13:34:02
-var __name__$1 = '__main__';
+// Transcrypt'ed from Python, 2020-08-29 21:09:51
+var __name__$2 = '__main__';
 var dumps = function (o) {
 	return JSON.stringify (o, null, 2);
 };
@@ -1271,22 +1273,37 @@ var loads = function (s) {
 	return JSON.parse (s);
 };
 var Map =  __class__ ('Map', [object], {
-	__module__: __name__$1,
+	__module__: __name__$2,
 	get __init__ () {return __get__ (this, function (self, board, active_hero) {
 		self.team = active_hero.team;
 		self.myid = active_hero.id;
+		self.myx = active_hero.distanceFromLeft;
+		self.myy = active_hero.distanceFromTop;
 		var base_grid = dict ({});
+		self.min = 0;
+		self.max = 0;
+		self.wells = [];
+		self.mines = [];
+		self.enemies = [];
+		self.allies = [];
 		for (var r of board.tiles) {
 			for (var o of r) {
+				var d = 0;
+				var dist = self.distance (self.myx, self.myy, o.distanceFromLeft, o.distanceFromLeft);
+				o.dist = dist;
 				if (o ['type'] == 'HealthWell') {
 					var d = -(20);
+					self.wells.append (o);
 				}
 				else if (o ['type'] == 'DiamondMine') {
-					var d = 0;
+					if (!(['team'] == self.team)) {
+						self.mines.append (o);
+					}
 				}
 				else if (o ['type'] == 'Hero') {
 					if (o ['team'] == self.team) {
 						if (self.myid != o ['id']) {
+							self.allies.append (o);
 							var d = -(15);
 						}
 						else {
@@ -1294,18 +1311,35 @@ var Map =  __class__ ('Map', [object], {
 						}
 					}
 					else {
+						self.enemies.append (o);
 						var d = 20;
 					}
 				}
-				else {
-					var d = 0;
-				}
 				if (len (o.heroesKilled)) {
-					d += (len (o.heroesKilled) * (d / abs (d))) * 3;
+					d += len (o.heroesKilled) * (d / abs (d));
 				}
 				base_grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], d);
+				if (d < self.min) {
+					self.min = d;
+				}
+				if (d > self.max) {
+					self.max = d;
+				}
 			}
 		}
+		self.min = abs (self.min);
+		self.wells.py_sort ((function __lambda__ (o) {
+			return o.dist;
+		}));
+		self.mines.py_sort ((function __lambda__ (o) {
+			return o.dist;
+		}));
+		self.enemies.py_sort ((function __lambda__ (o) {
+			return o.dist;
+		}));
+		self.allies.py_sort ((function __lambda__ (o) {
+			return o.dist;
+		}));
 		var grid = dict ({});
 		for (var r of board.tiles) {
 			for (var o of r) {
@@ -1322,6 +1356,12 @@ var Map =  __class__ ('Map', [object], {
 						rel_danger += float (v);
 					}
 				}
+				if (__in__ (o ['type'], ['Unoccupied'])) {
+					o.wall = false;
+				}
+				else {
+					o.wall = true;
+				}
 				grid.__setitem__ ([o.distanceFromLeft, o.distanceFromTop], o);
 				grid.__getitem__ ([o.distanceFromLeft, o.distanceFromTop]).rel_danger = rel_danger;
 			}
@@ -1331,24 +1371,61 @@ var Map =  __class__ ('Map', [object], {
 	get distance () {return function (x1, y1, x2, y2) {
 		return sqrt (Math.pow (x1 - x2, 2) + Math.pow (y1 - y2, 2));
 	};},
-	get print () {return __get__ (this, function (self) {
-		var mmax = max ((function () {
-			var __accu0__ = [];
-			for (var o of self.grid.py_values ()) {
-				__accu0__.append (o.rel_danger);
-			}
-			return py_iter (__accu0__);
-		}) ());
-		var mmin = abs (min ((function () {
-			var __accu0__ = [];
-			for (var o of self.grid.py_values ()) {
-				__accu0__.append (o.rel_danger);
-			}
-			return py_iter (__accu0__);
-		}) ()));
-		for (var x of py_reversed (range (5))) {
+	get get_segment_dir () {return function (route, seg) {
+		if (typeof seg == 'undefined' || (seg != null && seg.hasOwnProperty ("__kwargtrans__"))) {			var seg = 0;
+		}		var __left0__ = route [seg];
+		var x1 = __left0__ [0];
+		var y1 = __left0__ [1];
+		var __left0__ = route [seg + 1];
+		var x2 = __left0__ [0];
+		var y2 = __left0__ [1];
+		var dx = x2 - x1;
+		var dy = y2 - y1;
+		if (dx == 0 && dy == -(1)) {
+			return 'North';
+		}
+		else if (dx == 1 && dy == 0) {
+			return 'East';
+		}
+		else if (dx == 0 && dy == 1) {
+			return 'South';
+		}
+		else if (dx == -(1) && dy == 0) {
+			return 'West';
+		}
+		else {
+			print (roue [seg], route [seg + 1]);
+			return 'Stay';
+		}
+	};},
+	get print_route () {return __get__ (this, function (self, route) {
+		var size = sqrt (len (self.grid));
+		for (var x of py_reversed (range (size))) {
 			var line = '';
-			for (var y = 0; y < 5; y++) {
+			for (var y = 0; y < size; y++) {
+				if (any ((function () {
+					var __accu0__ = [];
+					for (var [xx, yy] of route) {
+						__accu0__.append (x == xx && y == yy);
+					}
+					return __accu0__;
+				}) ())) {
+					line += 'x';
+				}
+				else {
+					line += ' ';
+				}
+			}
+			print (line);
+		}
+	});},
+	get print () {return __get__ (this, function (self) {
+		var mmax = self.max;
+		var mmin = self.min;
+		var size = sqrt (len (self.grid));
+		for (var x of py_reversed (range (size))) {
+			var line = '';
+			for (var y = 0; y < size; y++) {
 				if (self.grid.__getitem__ ([x, y]) ['type'] == 'Unoccupied') {
 					var d = self.grid.__getitem__ ([x, y]).rel_danger + mmin;
 					line += str (int ((9 * d) / (mmax + mmin)));
@@ -1359,9 +1436,122 @@ var Map =  __class__ ('Map', [object], {
 			}
 			print (line);
 		}
+		print ('wells: ' + len (self.wells));
+		print ('unowned mines: ' + len (self.mines));
+		print ('enemies: ' + len (self.enemies));
+		print ('allies: ' + len (self.allies));
 	});},
-	get route () {return __get__ (this, function (self, source, target) {
-		// pass;
+	get route () {return __get__ (this, function (self, start, end) {
+		var return_path = function (current_node) {
+			var path = [];
+			var current = current_node;
+			while (current !== null) {
+				path.append (current.position);
+				var current = current.parent;
+			}
+			return py_reversed (path);
+		};
+		var start_node = Node (null, tuple (start));
+		var __left0__ = 0;
+		start_node.g = __left0__;
+		start_node.h = __left0__;
+		start_node.f = __left0__;
+		var end_node = Node (null, tuple (end));
+		var __left0__ = 0;
+		end_node.g = __left0__;
+		end_node.h = __left0__;
+		end_node.f = __left0__;
+		var open_list = [];
+		var closed_list = [];
+		open_list.append (start_node);
+		var outer_iterations = 0;
+		var max_iterations = len (self.grid);
+		var adjacent_squares = tuple ([tuple ([0, -(1)]), tuple ([0, 1]), tuple ([-(1), 0]), tuple ([1, 0])]);
+		while (len (open_list) > 0) {
+			outer_iterations += 1;
+			if (outer_iterations > max_iterations) {
+				return null;
+			}
+			open_list.py_sort ((function __lambda__ (a) {
+				return a.f;
+			}));
+			var current_node = open_list.py_pop (0);
+			closed_list.append (current_node);
+			if (current_node.__eq__ (end_node)) {
+				return return_path (current_node);
+			}
+			var children = [];
+			for (var new_position of adjacent_squares) {
+				var node_position = tuple ([current_node.position [0] + new_position [0], current_node.position [1] + new_position [1]]);
+				if (!__in__ (node_position, self.grid)) {
+					continue;
+				}
+				if (self.grid [node_position].wall && !(node_position [0] == end [0] && node_position [1] == end [1])) {
+					continue;
+				}
+				var new_node = Node (current_node, node_position);
+				children.append (new_node);
+			}
+			for (var child of children) {
+				if (len ((function () {
+					var __accu0__ = [];
+					for (var closed_child of closed_list) {
+						if (closed_child.__eq__ (child)) {
+							__accu0__.append (closed_child);
+						}
+					}
+					return __accu0__;
+				}) ()) > 0) {
+					continue;
+				}
+				var cost = (self.grid [child.position].rel_danger + self.min) / self.max;
+				child.g = current_node.g + cost;
+				child.h = self.distance (child.position [0], child.position [1], end_node.position [0], end_node.position [1]);
+				child.f = child.g + child.h;
+				if (len ((function () {
+					var __accu0__ = [];
+					for (var open_node of open_list) {
+						if (child.__eq__ (open_node) && child.g > open_node.g) {
+							__accu0__.append (open_node);
+						}
+					}
+					return __accu0__;
+				}) ()) > 0) {
+					continue;
+				}
+				open_list.append (child);
+			}
+		}
+		return null;
+	});},
+	get goto () {return __get__ (this, function (self, thing, filt) {
+		if (typeof filt == 'undefined' || (filt != null && filt.hasOwnProperty ("__kwargtrans__"))) {			var filt = (function __lambda__ (o) {
+				return true;
+			});
+		}		var valid = ['mines', 'wells', 'enemies', 'allies'];
+		if (__in__ (thing, valid)) {
+			var __break0__ = false;
+			for (var othing of self [thing]) {
+				if (filt (othing)) {
+					__break0__ = true;
+					break;
+				}
+			}
+			if (!__break0__) {
+				return null;
+			}
+			var dest = tuple ([othing.distanceFromLeft, othing.distanceFromTop]);
+			var route = self.route (tuple ([self.myx, self.myy]), dest);
+			if (route !== null) {
+				if (!(self.quiet)) {
+					self.print_route (route);
+				}
+				return self.get_segment_dir (route);
+			}
+		}
+		else {
+			print ('Thing must be one of ' + valid);
+		}
 	});}
 });
 try {

@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-29 13:34:00
+// Transcrypt'ed from Python, 2020-08-29 21:09:48
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -277,6 +277,10 @@ function py_typeof (anObject) {
             }
         }
     }
+}function max (nrOrSeq) {
+    return arguments.length == 1 ? Math.max (...nrOrSeq) : Math.max (...arguments);
+}function min (nrOrSeq) {
+    return arguments.length == 1 ? Math.min (...nrOrSeq) : Math.min (...arguments);
 }function __PyIterator__ (iterable) {
     this.iterable = iterable;
     this.index = 0;
@@ -1191,12 +1195,128 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-29 13:34:00
-var move = function (game, Map) {
-	var M = Map (game.board, game.activeHero);
-	M.print ();
-	return 'East';
+// Transcrypt'ed from Python, 2020-08-29 21:09:49
+try {
+	var __language = window.navigator.language;
+}
+catch (__except0__) {
+	var __language = 'en-US';
+}
+var __now = new Date ();
+var __weekdays = [];
+var __weekdays_long = [];
+var __d = new Date (1467662339080);
+for (var i = 0; i < 7; i++) {
+	for (var [l, s] of tuple ([tuple ([__weekdays, 'short']), tuple ([__weekdays_long, 'long'])])) {
+		l.append (__d.toLocaleString (__language, dict ([['weekday', s]])).lower ());
+	}
+	__d.setDate (__d.getDate () + 1);
+}
+var __months = [];
+var __months_long = [];
+var __d = new Date (946681200000.0);
+for (var i = 0; i < 12; i++) {
+	for (var [l, s] of tuple ([tuple ([__months, 'short']), tuple ([__months_long, 'long'])])) {
+		l.append (__d.toLocaleString (__language, dict ([['month', s]])).lower ());
+	}
+	__d.setMonth (__d.getMonth () + 1);
+}
+var __lu = dict ([['Y', 0], ['m', 1], ['d', 2], ['H', 3], ['M', 4], ['S', 5]]);
+var __jan_jun_tz = function (t, func) {
+	var was = t.getTime ();
+	t.setDate (1);
+	var res = [];
+	for (var m of tuple ([0, 6])) {
+		t.setMonth (m);
+		if (!(func)) {
+			res.append (t.getTimezoneOffset ());
+		}
+		else {
+			res.append (func (t));
+		}
+	}
+	t.setTime (was);
+	return res;
 };
+var _daylight = function (t) {
+	var jj = __jan_jun_tz (t);
+	if (jj [0] != jj [1]) {
+		return 1;
+	}
+	return 0;
+};
+var _daylight_in_effect = function (t) {
+	var jj = __jan_jun_tz (t);
+	if (min (jj [0], jj [1]) == t.getTimezoneOffset ()) {
+		return 1;
+	}
+	return 0;
+};
+var _timezone = function (t) {
+	var jj = __jan_jun_tz (t);
+	return max (jj [0], jj [1]);
+};
+var __tzn = function (t) {
+	try {
+		return str (t).py_split ('(') [1].py_split (')') [0];
+	}
+	catch (__except0__) {
+		return 'n.a.';
+	}
+};
+var _tzname = function (t) {
+	var cn = __tzn (t);
+	var ret = [cn, cn];
+	var jj = __jan_jun_tz (t, __tzn);
+	var ind = 0;
+	if (!(_daylight_in_effect (t))) {
+		var ind = 1;
+	}
+	for (var i of jj) {
+		if (i != cn) {
+			ret [ind] = i;
+		}
+	}
+	return tuple (ret);
+};
+var altzone = __now.getTimezoneOffset ();
+if (!(_daylight_in_effect (__now))) {
+	var _jj = __jan_jun_tz (__now);
+	var altzone = (altzone == _jj [1] ? _jj [0] : _jj [1]);
+}
+var altzone = altzone * 60;
+var timezone = _timezone (__now) * 60;
+var daylight = _daylight (__now);
+var tzname = _tzname (__now);
+var time = function () {
+	return Date.now () / 1000;
+};
+
+// Transcrypt'ed from Python, 2020-08-29 21:09:49
+var perform = function (func) {
+	var wrap = function () {
+		var args = tuple ([].slice.apply (arguments).slice (0));
+		var tt = time ();
+		if (!(kwargs)) {
+			var kwargs = dict ({});
+		}
+		var res = func (...args, __kwargtrans__ (kwargs));
+		print (time () - tt);
+		return res;
+	};
+	return wrap;
+};
+var move = perform (function (game, Map) {
+	var M = Map (game.board, game.activeHero);
+	M.quiet = false;
+	var x = M.goto ('enemies');
+	if (x !== null) {
+		return x;
+	}
+	else {
+		print (x);
+	}
+});
 try {
 	var pragma = __pragma__;
 	var pragma = true;
@@ -1209,3 +1329,4 @@ if (pragma) {
 }
 
 exports.move = move;
+exports.perform = perform;
