@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:51
+// Transcrypt'ed from Python, 2020-09-05 22:19:56
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -1234,7 +1234,7 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:52
+// Transcrypt'ed from Python, 2020-09-05 22:19:57
 var __name__$1 = 'misc';
 var Node =  __class__ ('Node', [object], {
 	__module__: __name__$1,
@@ -1261,17 +1261,11 @@ var Node =  __class__ ('Node', [object], {
 	});}
 });
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:52
+// Transcrypt'ed from Python, 2020-09-05 22:19:57
 var sqrt = Math.sqrt;
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:51
+// Transcrypt'ed from Python, 2020-09-05 22:19:56
 var __name__$2 = '__main__';
-var dumps = function (o) {
-	return JSON.stringify (o, null, 2);
-};
-var loads = function (s) {
-	return JSON.parse (s);
-};
 var Map =  __class__ ('Map', [object], {
 	__module__: __name__$2,
 	get __init__ () {return __get__ (this, function (self, board, active_hero) {
@@ -1279,6 +1273,7 @@ var Map =  __class__ ('Map', [object], {
 		self.myid = active_hero.id;
 		self.myx = active_hero.distanceFromLeft;
 		self.myy = active_hero.distanceFromTop;
+		self.myhealth = active_hero.health;
 		var base_grid = dict ({});
 		self.min = 0;
 		self.max = 0;
@@ -1286,11 +1281,13 @@ var Map =  __class__ ('Map', [object], {
 		self.mines = [];
 		self.enemies = [];
 		self.allies = [];
+		self.size = board.lengthOfSide;
+		self.sized = Math.floor ((sqrt (Math.pow (self.size, 2)) * 2) / 1);
 		for (var r of board.tiles) {
 			for (var o of r) {
 				var d = 0;
 				var dist = self.distance (self.myx, self.myy, o.distanceFromLeft, o.distanceFromLeft);
-				o.dist = dist;
+				o ['dist'] = dist;
 				if (o ['type'] == 'HealthWell') {
 					var d = -(20);
 					self.wells.append (o);
@@ -1329,16 +1326,16 @@ var Map =  __class__ ('Map', [object], {
 		}
 		self.min = abs (self.min);
 		self.wells.py_sort ((function __lambda__ (o) {
-			return o.dist;
+			return o ['dist'];
 		}));
 		self.mines.py_sort ((function __lambda__ (o) {
-			return o.dist;
+			return o ['dist'];
 		}));
 		self.enemies.py_sort ((function __lambda__ (o) {
-			return o.dist;
+			return o ['dist'];
 		}));
 		self.allies.py_sort ((function __lambda__ (o) {
-			return o.dist;
+			return o ['dist'];
 		}));
 		var grid = dict ({});
 		for (var r of board.tiles) {
@@ -1399,7 +1396,7 @@ var Map =  __class__ ('Map', [object], {
 		}
 	};},
 	get print_route () {return __get__ (this, function (self, route) {
-		var size = sqrt (len (self.grid));
+		var size = self.size;
 		for (var x of py_reversed (range (size))) {
 			var line = '';
 			for (var y = 0; y < size; y++) {
@@ -1422,7 +1419,7 @@ var Map =  __class__ ('Map', [object], {
 	get print () {return __get__ (this, function (self) {
 		var mmax = self.max;
 		var mmin = self.min;
-		var size = sqrt (len (self.grid));
+		var size = self.size;
 		for (var x of py_reversed (range (size))) {
 			var line = '';
 			for (var y = 0; y < size; y++) {
@@ -1524,33 +1521,53 @@ var Map =  __class__ ('Map', [object], {
 		}
 		return null;
 	});},
+	valid: set (tuple (['mines', 'wells', 'enemies', 'allies'])),
+	get find () {return __get__ (this, function (self, types, filt) {
+		if (typeof filt == 'undefined' || (filt != null && filt.hasOwnProperty ("__kwargtrans__"))) {			var filt = (function __lambda__ (o) {
+				return true;
+			});
+		}		if ('str' == (types.__class__ || dict ({})).__name__) {
+			var types = tuple ([types]);
+		}
+		if (len (set (types).intersection (self.valid)) == len (types)) {
+			var objects = [];
+			for (var thing of types) {
+				objects.extend (self [thing]);
+			}
+			objects.py_sort ((function __lambda__ (o) {
+				return o ['dist'];
+			}));
+			var __break0__ = false;
+			for (var othing of objects) {
+				if (filt (othing)) {
+					return othing;
+				}
+			}
+			if (!__break0__) {
+				var o = dict ({});
+				o ['dist'] = null;
+				return o;
+			}
+		}
+	});},
 	get goto () {return __get__ (this, function (self, thing, filt) {
 		if (typeof filt == 'undefined' || (filt != null && filt.hasOwnProperty ("__kwargtrans__"))) {			var filt = (function __lambda__ (o) {
 				return true;
 			});
-		}		var valid = ['mines', 'wells', 'enemies', 'allies'];
-		if (__in__ (thing, valid)) {
-			var __break0__ = false;
-			for (var othing of self [thing]) {
-				if (filt (othing)) {
-					__break0__ = true;
-					break;
-				}
-			}
-			if (!__break0__) {
-				return null;
-			}
-			var dest = tuple ([othing.distanceFromLeft, othing.distanceFromTop]);
-			var route = self.route (tuple ([self.myx, self.myy]), dest);
-			if (route !== null) {
-				if (!(self.quiet)) {
-					self.print_route (route);
-				}
-				return self.get_segment_dir (route);
-			}
+		}		var othing = null;
+		if (__in__ (thing, self.valid)) {
+			var othing = self.find (thing, filt);
 		}
-		else {
-			print ('Thing must be one of ' + valid);
+		if (othing === null) {
+			var othing = thing;
+		}
+		var dest = tuple ([othing.distanceFromLeft, othing.distanceFromTop]);
+		var route = self.route (tuple ([self.myx, self.myy]), dest);
+		if (route !== null) {
+			if (!(self.quiet)) {
+				self.print_route (route);
+			}
+			return self.get_segment_dir (route);
 		}
 	});}
 });
@@ -1566,5 +1583,3 @@ if (pragma) {
 }
 
 exports.Map = Map;
-exports.dumps = dumps;
-exports.loads = loads;

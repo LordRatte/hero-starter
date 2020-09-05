@@ -1,13 +1,5 @@
 from math import sqrt
-from misc import Node
-
-
-def dumps(o):
-	return JSON.stringify(o, None, 2)
-
-def loads(s):
-	return JSON.parse(s)
-
+from misc import Node, dumps, loads
 
 class Map:
 	def __init__(self, board, active_hero):
@@ -15,6 +7,7 @@ class Map:
 		self.myid = active_hero.id
 		self.myx = active_hero.distanceFromLeft
 		self.myy = active_hero.distanceFromTop
+		self.myhealth = active_hero.health
 		base_grid  = {}
 		self.min =  0
 		self.max =  0
@@ -22,12 +15,13 @@ class Map:
 		self.mines = []
 		self.enemies = []
 		self.allies = []
-		
+		self.size = board.lengthOfSide
+		self.sized = (sqrt(self.size**2) * 2)//1
 		for r in board.tiles:
 			for o in r:
 				d = 0
 				dist = self.distance(self.myx, self.myy, o.distanceFromLeft, o.distanceFromLeft)
-				o.dist = dist
+				o['dist'] = dist
 				if o['type'] == 'HealthWell':
 					d = -20
 					self.wells.append(o)
@@ -52,10 +46,10 @@ class Map:
 				if d > self.max:
 					self.max = d
 		self.min = abs(self.min)	
-		self.wells.sort(lambda o: o.dist)
-		self.mines.sort(lambda o: o.dist)
-		self.enemies.sort(lambda o: o.dist)
-		self.allies.sort(lambda o: o.dist)
+		self.wells.sort(lambda o: o['dist'])
+		self.mines.sort(lambda o: o['dist'])
+		self.enemies.sort(lambda o: o['dist'])
+		self.allies.sort(lambda o: o['dist'])
 		grid = {}
 		
 		for r in board.tiles:
@@ -99,7 +93,7 @@ class Map:
 			return 'Stay'
 
 	def print_route(self, route):
-		size = sqrt(len(self.grid))
+		size = self.size
 		for x in reversed(range(size)):
 			line = ''
 			for y in range(size):
@@ -112,7 +106,7 @@ class Map:
 	def print(self):
 		mmax = self.max
 		mmin = self.min
-		size = sqrt(len(self.grid))
+		size = self.size
 		for x in reversed(range(size)):
 			line = ''
 			for y in range(size):
@@ -219,22 +213,36 @@ class Map:
 
 		return None	
 
-	def goto(self, thing, filt=lambda o: True):
-		valid = ['mines', 'wells', 'enemies', 'allies']
-		if thing in valid:
-			for othing in self[thing]:
+	valid = set(('mines', 'wells', 'enemies', 'allies'))
+
+	def find(self, types, filt=lambda o: True):
+		if 'str' == (types.__class__ or {}).__name__:
+			types = (types,)
+		if len(set(types).intersection(self.valid)) == len(types):
+			objects = []
+			for thing in types:
+				objects.extend(self[thing])
+			objects.sort(lambda o: o['dist'])
+			for othing in objects:
 				if filt(othing):
-					break
+					return othing
 			else:
-				return None
-			dest = (othing.distanceFromLeft, othing.distanceFromTop)
-			route = self.route((self.myx, self.myy), dest)
-			if route is not None:
-				if not self.quiet:
-					self.print_route(route)
-				return self.get_segment_dir(route)
-		else:
-			print('Thing must be one of ' + valid)
+				o = {}
+				o['dist'] = None
+				return o
+
+	def goto(self, thing, filt=lambda o: True):
+		othing = None
+		if thing in self.valid:
+			othing = self.find(thing, filt)
+		if othing is None:
+			othing = thing
+		dest = (othing.distanceFromLeft, othing.distanceFromTop)
+		route = self.route((self.myx, self.myy), dest)
+		if route is not None:
+			if not self.quiet:
+				self.print_route(route)
+			return self.get_segment_dir(route)
 try:
 	pragma = __pragma__
 	pragma = True

@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:48
+// Transcrypt'ed from Python, 2020-09-05 22:19:53
 var __name__ = 'org.transcrypt.__runtime__';
 function __get__ (self, func, quotedFuncName) {
     if (self) {
@@ -1195,7 +1195,34 @@ var __terminal__ = __Terminal__ ();
 var print = __terminal__.print;
 var input = __terminal__.input;
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:49
+// Transcrypt'ed from Python, 2020-09-05 22:19:54
+var __name__$1 = 'misc';
+var Node =  __class__ ('Node', [object], {
+	__module__: __name__$1,
+	get __init__ () {return __get__ (this, function (self, parent, position) {
+		if (typeof parent == 'undefined' || (parent != null && parent.hasOwnProperty ("__kwargtrans__"))) {			var parent = null;
+		}		if (typeof position == 'undefined' || (position != null && position.hasOwnProperty ("__kwargtrans__"))) {			var position = null;
+		}		self.parent = parent;
+		self.position = position;
+		self.g = 0;
+		self.h = 0;
+		self.f = 0;
+	});},
+	get __eq__ () {return __get__ (this, function (self, other) {
+		return self.position [0] == other.position [0] && self.position [1] == other.position [1];
+	});},
+	get __repr__ () {return __get__ (this, function (self) {
+		return '({0},f{1}g{2})'.format (self.position, self.f, self.g);
+	});},
+	get __lt__ () {return __get__ (this, function (self, other) {
+		return self.f < other.f;
+	});},
+	get __gt__ () {return __get__ (this, function (self, other) {
+		return self.f > other.f;
+	});}
+});
+
+// Transcrypt'ed from Python, 2020-09-05 22:19:54
 try {
 	var __language = window.navigator.language;
 }
@@ -1292,7 +1319,7 @@ var time = function () {
 	return Date.now () / 1000;
 };
 
-// Transcrypt'ed from Python, 2020-08-29 21:09:49
+// Transcrypt'ed from Python, 2020-09-05 22:19:53
 var perform = function (func) {
 	var wrap = function () {
 		var args = tuple ([].slice.apply (arguments).slice (0));
@@ -1306,16 +1333,59 @@ var perform = function (func) {
 	};
 	return wrap;
 };
+var do_self_heal = function (M, well, soul) {
+	var health_source = null;
+	var health_source = (health_source !== null && well.rel_danger < health_source ['dist'] ? health_source : well);
+	var health_source = (health_source !== null && soul.rel_danger < health_source ['dist'] ? health_source : soul);
+	if (health_source !== null) {
+		M.goto (health_source);
+	}
+};
+var do_battle = function (M, enemy) {
+	var ally_weak = M.find ('allies', (function __lambda__ (o) {
+		return o.health < 100;
+	}));
+	if (enemy ['dist'] === null || ally_weak ['dist'] !== null && ally_weak ['dist'] > enemy ['dist']) {
+		return M.goto (ally_dist);
+	}
+	else if (ally_weak ['dist'] === null || enemy ['dist'] !== null && ally_weak ['dist'] < enemy ['dist']) {
+		return M.goto (enemy);
+	}
+};
 var move = perform (function (game, Map) {
 	var M = Map (game.board, game.activeHero);
 	M.quiet = false;
-	var x = M.goto ('enemies');
-	if (x !== null) {
-		return x;
+	M.print ();
+	var enemy = M.find ('enemies', (function __lambda__ (o) {
+		return !(o ['dead']);
+	}));
+	var well = M.find ('wells');
+	var ally = M.find ('allies', (function __lambda__ (o) {
+		return !(o ['dead']);
+	}));
+	var mine = M.find ('mines');
+	var soul = M.find (['allies', 'enemies'], (function __lambda__ (o) {
+		return o ['dead'];
+	}));
+	if (M.myhealth < 60) {
+		return do_self_heal (M, well, soul);
 	}
-	else {
-		print (x);
+	if (enemy ['dist'] !== null && enemy ['dist'] > M.size / 3) {
+		if (mine ['dist'] !== null) {
+			return M.goto (mine);
+		}
+		if (M.myhealth < 100) {
+			var shealth = do_self_heal (M, well, soul);
+			if (shealth !== null) {
+				return shealth;
+			}
+		}
 	}
+	var bat = do_battle (M, enemy);
+	if (bat !== null) {
+		return bat;
+	}
+	return M.goto (mine) || M.goto (well);
 });
 try {
 	var pragma = __pragma__;
@@ -1328,5 +1398,7 @@ if (pragma) {
 	module.exports = move;
 }
 
+exports.do_battle = do_battle;
+exports.do_self_heal = do_self_heal;
 exports.move = move;
 exports.perform = perform;

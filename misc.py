@@ -1,3 +1,10 @@
+def dumps(o):
+	return JSON.stringify(o, None, 2)
+
+def loads(s):
+	return JSON.parse(s)
+
+
 class Node:
     """
     A node class for A* Pathfinding
