@@ -49,10 +49,10 @@ var heroMoveFunction = require('./hero.js');
 var enemyMoveFunction = function (gameData, helpers) {
   // Move in a random direction
 
-    // var choices = ['North', 'South', 'East', 'West'];
+     var choices = ['North', 'South', 'East', 'West'];
 
-    // return choices[Math.floor(Math.random()*4)];
-    return helpers.findNearestHealthWell (gameData);
+     return choices[Math.floor(Math.random()*4)];
+    //return helpers.health_well();
 };
 
 var currentTurn = 0;
